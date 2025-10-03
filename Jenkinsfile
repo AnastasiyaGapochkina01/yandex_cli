@@ -1,7 +1,7 @@
 def yc = '/var/lib/jenkin/yc'
 
 pipeline {
-  angent any
+  agent any
 
   parameters {
     choice(name: 'IMAGE', choices: ['ubuntu-2404-lts-oslogin', 'debian-12'])
