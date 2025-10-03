@@ -1,0 +1,14 @@
+#cloud-config
+users:
+  - name: anestesia
+    groups: sudo
+    shell: /bin/bash
+    sudo: 'ALL=(ALL) NOPASSWD:ALL'
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA2JXbjp9HtW13r224ZpS6aspQCVxvgMTAnhhiy7hL2c agapochkina@agapochkina
+  - name: jenkins
+    groups: sudo
+    shell: /bin/bash
+    sudo: 'ALL=(ALL) NOPASSWD:ALL'
+    ssh_authorized_keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG0tCbhytF3Ac92W9JQXvF9Q5Te2M1Y5+zqnUoeQdJR4 jenkins@jenkins-01
