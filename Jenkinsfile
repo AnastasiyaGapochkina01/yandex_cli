@@ -55,6 +55,7 @@ pipeline {
             waitUntil {
               def status = sh(script: "${yc} compute instance get --name $vmName --format json | jq -r '.status'", returnStdout: true).trim()
               echo "VM status ${status}"
+              return (status == 'RUNNING')
             }
           }
         }
