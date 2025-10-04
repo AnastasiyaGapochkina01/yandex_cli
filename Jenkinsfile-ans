@@ -1,0 +1,73 @@
+pipeline {
+  agent any
+
+  parameters {
+    booleanParam(name: 'DRY_RUN', defaultValue: false, description: 'Run playbook with --check')
+    string(name: 'HOST', defaultValue: '127.0.0.1', description: 'Host for apply playbook')
+  }
+
+  environment {
+    PLAYBOOK = 'ping.yaml'
+  }
+
+  stages {
+    stage('Check syntax') {
+      steps {
+        ansiblePlaybook( 
+          playbook: "${env.PLAYBOOK}",
+          inventory: "${params.HOST}",
+          extras: '--syntax-check'
+          become: true
+        )
+      }
+    }
+
+    stage('Dry Run') {
+      when {
+        expression { params.DRY_RUN == true }
+      }
+      steps {
+        withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-key', keyFileVariable: 'private_key')]) {
+          script {
+            echo "Run playbook with --check option"
+            ansiblePlaybook(
+              playbook: "${env.PLAYBOOK}",
+              inventory: "${params.HOST}",
+              extras: '--check',
+              become: true
+            )
+          } 
+        }
+      }
+    }
+
+    stage('Approval to Proceed') {
+      steps {
+        script {
+          def userInput = input(
+            message: 'Proceed apply playbook?'
+            ok: 'apply',
+            parameters: []
+          )
+          echo "Confirmed apply: ${userInput}"
+        }
+      }
+    }
+
+    stage('Apply' {
+      steps {
+        withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-key', keyFileVariable: 'private_key')]) {
+          script {
+            echo "Run playbook on ${params.HOST}"
+            ansiblePlaybook(
+              playbook: "${env.PLAYBOOK}",
+              inventory: "${params.HOST}",
+              extras: "--private-key=$private_key",
+              become: true
+            )
+          }
+        }
+      }
+    }
+  }
+}
