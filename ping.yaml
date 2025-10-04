@@ -1,0 +1,11 @@
+---
+- hosts: all
+  become: true
+  tasks:
+    - name: Ping remote host
+      ping:
+      register: ping_result
+
+    - name: Show response
+      debug:
+        msg: "{{ ping_result }}"
