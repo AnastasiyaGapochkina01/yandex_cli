@@ -15,7 +15,7 @@ pipeline {
       steps {
         ansiblePlaybook( 
           playbook: "${env.PLAYBOOK}",
-          inventory: "${params.HOST}",
+          inventory: "${params.HOST},",
           extras: '--syntax-check',
           become: true
         )
@@ -32,7 +32,7 @@ pipeline {
             echo "Run playbook with --check option"
             ansiblePlaybook(
               playbook: "${env.PLAYBOOK}",
-              inventory: "${params.HOST}",
+              inventory: "${params.HOST},",
               extras: '--check',
               become: true
             )
@@ -61,7 +61,7 @@ pipeline {
             echo "Run playbook on ${params.HOST}"
             ansiblePlaybook(
               playbook: "${env.PLAYBOOK}",
-              inventory: "${params.HOST}",
+              inventory: "${params.HOST},",
               extras: "--private-key=$private_key",
               become: true
             )
