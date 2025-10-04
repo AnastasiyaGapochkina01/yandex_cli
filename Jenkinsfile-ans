@@ -69,5 +69,18 @@ pipeline {
         }
       }
     }
+
+  stage('Run deploy app') {
+    steps {
+      build(
+        job: 'apply-ansible',
+          parameters: [
+            gitParameter(name: 'BRANCH', defaultValue: 'main'),
+            string(name: 'HOST', value: vmPubIp),
+            booleanParam(name: 'RUN_TESTS', value: false)
+          ]
+      )
+    }
+  }
   }
 }
