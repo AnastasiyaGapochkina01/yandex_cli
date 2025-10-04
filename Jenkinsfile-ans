@@ -54,7 +54,7 @@ pipeline {
       }
     }
 
-    stage('Apply' {
+    stage('Apply') {
       steps {
         withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-key', keyFileVariable: 'private_key')]) {
           script {
