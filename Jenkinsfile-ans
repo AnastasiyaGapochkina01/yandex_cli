@@ -45,7 +45,7 @@ pipeline {
       steps {
         script {
           def userInput = input(
-            message: 'Proceed apply playbook?'
+            message: 'Proceed apply playbook?',
             ok: 'apply',
             parameters: []
           )
