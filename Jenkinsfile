@@ -66,7 +66,7 @@ pipeline {
       steps {
         script {
         def vmPubIp = sh(
-          script: "${yc} compute instance get --name ${params.VM_NAME} --format json | jq -r'.network_interfaces[0].primary_v4_address.one_to_one_nat.address'", 
+          script: "${yc} compute instance get --name ${params.VM_NAME} --format json | jq -r '.network_interfaces[0].primary_v4_address.one_to_one_nat.address'", 
           returnStdout: true
         ).trim()
         echo "VM public IP: $vmPubIp"
