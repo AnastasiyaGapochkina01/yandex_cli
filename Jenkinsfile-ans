@@ -16,7 +16,7 @@ pipeline {
         ansiblePlaybook( 
           playbook: "${env.PLAYBOOK}",
           inventory: "${params.HOST}",
-          extras: '--syntax-check'
+          extras: '--syntax-check',
           become: true
         )
       }
