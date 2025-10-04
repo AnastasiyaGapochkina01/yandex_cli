@@ -7,7 +7,7 @@ pipeline {
     choice(name: 'IMAGE', choices: ['ubuntu-2404-lts-oslogin', 'debian-12'])
     string(name: 'CPU', defaultValue: '2')
     string(name: 'MEM', defaultValue: '4')
-    //string(name: 'DISK_SIZE', defaultValue: '20')
+    string(name: 'DISK_SIZE', defaultValue: '20')
     string(name: 'VM_NAME', defaultValue: 'test-vm')
   }
 
@@ -46,7 +46,7 @@ pipeline {
             --name $vmName \
             --zone ru-central1-b \
             --network-interface subnet-name=default-ru-central1-b,nat-ip-version=ipv4 \
-            --create-boot-disk image-folder-id=standard-images,image-family=$image \
+            --create-boot-disk image-folder-id=standard-images,image-family=$image,size=$diskSize \
             --memory $mem \
             --cores $cpu \
             --metadata-from-file user-data=metadata.yaml
@@ -59,6 +59,39 @@ pipeline {
             }
           }
         }
+      }
+    }
+
+    stage('Run ansible') {
+      steps {
+        def vmPubIp = sh(
+          script: "${yc} compute instance get --name ${params.VM_NAME} --format json | jq -r'.network_interfaces[0].primary_v4_address.one_to_one_nat.address'", 
+          returnStdout: true
+        ).trim()
+        echo "VM public IP: $vmPubIp"
+
+        timeout(time: 5, unit: 'MINUTES') {
+          waitUntil {
+            def sshAvailable = sh(
+              script: "ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 jenkins@${vmPubIp} echo 1",
+              returnStatus: true
+            ) == 0
+            if(!sshAvailable) {
+              echo "SSH not available yet"
+            }
+            return sshAvailable
+          }
+        }
+        echo "SSH available"
+
+        build(
+          job: 'apply-ansible',
+          parameters: [
+            string(name: 'HOST', value: vmPubIp),
+            booleanParam(name: 'DRY_RUN', value: true)
+          ],
+          wait: true
+        )
       }
     }
   }
